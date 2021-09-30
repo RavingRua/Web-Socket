@@ -1,16 +1,17 @@
-const path = require('path');
-const {Server} = require('socket.io');
-const WebSocket = require('websocket').server;
 const express = require('express');
+const app = new express;
+const path = require('path');
 const http = require('http');
+const srv = http.createServer(app);
+const {Server} = require("socket.io");
+const io = new Server(srv);
 
-const app = new express();
-const server = http.createServer(app);
-const io = new Server(server);
-const ws = new WebSocket({httpServer: server});
+app.use(express.static('./static'));
 
-app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
+app.get('/', (req, res) => res.sendFile(path.resolve('index.html')));
 
-io.on('connection', socket => console.log('socket connected'));
+io.on('connection', socket => {
+    socket.send('hello ws');
+});
 
-server.listen(3000, 'localhost', () => console.log('http://127.0.0.1:3000'));
+srv.listen(80, 'localhost', () => console.log('http://127.0.0.1'));

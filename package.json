@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "WS test.",
   "main": "index.js",
+  "type": "commonjs",
   "scripts": {
     "run": "node index.js",
     "live": "nodemon index.js"

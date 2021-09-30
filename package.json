@@ -1,0 +1,20 @@
+{
+  "name": "websocket-test",
+  "version": "1.0.0",
+  "description": "WS test.",
+  "main": "index.js",
+  "scripts": {
+    "run": "node index.js",
+    "live": "nodemon index.js"
+  },
+  "author": "",
+  "license": "BSD-2-Clause",
+  "dependencies": {
+    "express": "^4.17.1",
+    "socket.io": "^4.2.0",
+    "websocket": "^1.0.34"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.13"
+  }
+}

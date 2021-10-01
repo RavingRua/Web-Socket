@@ -5,9 +5,15 @@
     <title>Web Socket</title>
     <script src="/socket.io.js"></script>
     <script>
-        const socket = io();
+        const socket = io('localhost:80');
+
         socket.on('message', (e) => {
             console.log(e);
+        });
+
+        socket.on('connect', () => {
+            console.log('ok');
+            socket.emit('chat-message', 'from native');
         });
     </script>
 </head>

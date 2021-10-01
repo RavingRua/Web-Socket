@@ -1,0 +1,19 @@
+{
+  "name": "socket-io-client-test",
+  "version": "0.0.0",
+  "scripts": {
+    "vite-dev": "vite",
+    "vite-build": "vite build",
+    "vite-serve": "vite preview"
+  },
+  "dependencies": {
+    "vue": "^3.2.16",
+    "socket.io": "^4.2.0",
+    "socket.io-client": "^4.2.0",
+    "vue-socket.io": "^3.0.10"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^1.9.2",
+    "vite": "^2.6.0"
+  }
+}

@@ -43,7 +43,7 @@ WebSocket 标准已经被交由 IETF（互联网工程任务组）开发，并�
 
 ## 第一部分 WebSocket 协议
 
-在使用 WebSocket API 之前，需要先熟悉 WS 协议内容。WS 标准文档由 RFC 6455 规定，在2011年12月发布。
+在使用 WebSocket API 之前，需要先熟悉 WS 协议内容。WS 标准文档由 RFC 6455 规定，在2011年12月发布。如果对该请求评论文档规定的内容不熟悉，容易在实际开发中遇到问题而束手无策。当然，也可稍后阅读该部分。
 
 ### WebSocket 特性
 
@@ -377,6 +377,133 @@ if (window.WebSocket) {
 ```
 
 如果不兼容，通常可以使用实现`polyfill`来引入需要的 JS 功能。网站[Can I use ...](https://caniuse.com/)中可以查询浏览器兼容信息。
+
+### Socket.io-client
+
+Socket.io 还提供了用于客户端浏览器使用的 WS API，该库**必须和 Socket.io 服务器框架同时使用**，两者之间有特定的扩展协议。
+
+#### 在原生中使用
+
+Socket.io 官网提供了一些 CDN 连接用于直接在 html 文件中引入 Socket.io：
+
+```html
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.2.0/socket.io.min.js"></script>
+```
+
+```html
+<script src="https://cdn.jsdelivr.net/npm/socket.io-client@4.2.0/dist/socket.io.min.js"></script>
+```
+
+```html
+<script src="https://unpkg.com/socket.io-client@4.2.0/dist/socket.io.min.js"></script>
+```
+
+Socket.io 也使用事件驱动的 API 模式，在实例化一个 io 对象时，会自动建立 WS 连接：
+
+```html
+<script>
+    const socket = io('localhost:80');
+    
+    // 接收消息时的回调
+    socket.on('message', (e) => {
+        console.log(e);
+    });
+
+    // 连接建立时的回调
+    socket.on('connect', () => {
+        console.log('ok');
+        // 客户端 WS 发送了一个 chat-message事件，在服务器端socket.io的该事件回调可以接收到消息
+        socket.emit('chat-message', 'from native');
+    });
+</script>
+```
+
+服务端接收`chat-message`事件触发时传递的消息：
+
+```js
+io.on('connection', socket => {
+    console.log('user connected');
+
+    socket.on('chat-message', (msg) => {
+        console.log('incoming message:', msg);		// incoming message: from native
+    });
+});
+```
+
+#### 在框架中使用
+
+在框架中使用和原生基本一致，只需在正确的地方引入 Socket.io 并创建即可。也可创建插件以便在所有单文件组件中使用，如 Vue ：
+
+```js
+// io.js
+import {io} from 'socket.io-client';
+
+export default {
+    install: (app, {connection, options}) => {
+        const socket = io(connection, options);
+        app.config.globalProperties.$socket = socket;
+        app.provide('socket', socket);
+    }
+}
+```
+
+```js
+// main.js
+import { createApp } from 'vue';
+import App from './App.vue';
+import SocketIO from './plugins/io';
+
+const app = createApp(App);
+
+app.use(SocketIO, {
+    connection: 'ws://localhost:3200',
+});
+
+app.mount('#app');
+```
+
+```vue
+<template>
+  <button @click="handleSendMessage">SEND</button>
+</template>
+
+<script setup>
+// 某个vue文件
+import { inject } from "vue";
+
+const socket = inject("socket");
+
+socket.on("connection", (res) => {
+  console.log("#connection: ", res);
+});
+
+socket.on("connected", (res) => {
+  console.log("#connected: ", res);
+});
+
+socket.on("message", (res) => {
+  console.log("#message: ", res);
+});
+
+const handleSendMessage = () => {
+  socket.emit("message", "{ text:  '客户端发送的消息'}");
+};
+</script>
+```
+
+#### 已知问题
+
+在使用 Vite 作为脚手架时，Socket.io-client 会无法发出第一次握手时的 HTTP 请求，因此也无法建立 WS 连接，这个问题在 Vite.js 和 Socket.io 的 Github 仓库的 issue 中（[Vite](https://github.com/vitejs/vite/issues/4798)，[Socket.io-client](https://github.com/socketio/socket.io-client/issues/1495)）已经有报告，目前（截至2021年10月1日）的解决方案是在 Vite 配置文件中强制加载一个 Node.js 原生模块：
+
+```js
+export default defineConfig({
+    resolve:{
+        alias:{
+            "xmlhttprequest-ssl": "./node_modules/engine.io-client/lib/xmlhttprequest.js"
+        }
+    }
+});
+```
 
 ## 第三部分 服务器 WebSocket
 

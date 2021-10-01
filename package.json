@@ -5,7 +5,7 @@
   "main": "index.js",
   "type": "commonjs",
   "scripts": {
-    "run": "node index.js",
+    "srv": "node index.js",
     "live": "nodemon index.js"
   },
   "author": "",

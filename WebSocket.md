@@ -37,7 +37,7 @@ WebSocket 是一种原生的**全双工**、**单套接字**连接。使用 WS �
 
 WebSocket 标准已经被交由 IETF（互联网工程任务组）开发，并在现代浏览器上得到实现，许多服务器应用框架也开始添加 WebSocket 支持 WS 。
 
-**SPDY**（音：speedy）是谷歌开发的一种新型网络协议，这种协议已经在 Chrome、Opera、Firefox 中实现。SPDY 扩充了 HTTP，和 WS 互相补充，同时使用 SPDY 和 WS 是一个不错的选择。不过 SPDY 还不是标准，但是有可能会和 HTTP 2.0 合并最终成为标准。
+**SPDY**（音：speedy）是谷歌开发的一种新型网络协议，这种协议已经在 Chrome、Opera、Firefox 中实现。SPDY 扩充了 HTTP，虽然没有成为最终标准，但可以将其视为 HTTP 2.0 的前身。不过，最新的 HTTP 3.0 已经可以逐步取代 HTTP 2.0 了。
 
 **WebRTC（Web Real-Time Connection）**，即 Web 实时通信是 W3C 制定的另一项 Web 标准，并且已经在一些浏览器中实现，WebRTC 计划增加一批模式和 WS 类似的 API，在未来可以将 WebRTC 与 WS 一起使用打造流媒体和实时应用。
 
@@ -223,6 +223,12 @@ const unmask = (mask_bytes, buffer) => {
 #### 扩展
 
 客户端的第一个 HTTP 请求的`Sec-WebSocket-Extensions`首部行将包含请求的扩展信息。这些**扩展**因为扩展了 WS 协议得名，如对 WS 数据的压缩。
+
+#### 心跳
+
+由于网络和 WS 实现中可能存在的一些问题，应用建立的 WS 连接可能在长时间打开后断开。心跳是指 WS 客户端每隔固定的时间向服务器发送 PING 请求，以证明连接仍然“存活”。服务器将监听这类 PING，并在收到时响应 PONG，重置计时器。如果在时间间隔内未收到 PING，则断开 WS 连接。
+
+同样，如果服务器发出的断开连接请求报文由于某些原因丢失，也会出现单方连接断开的问题。客户端同样需要检测心跳，在出现异常时主动关闭连接。
 
 ## 第二部分 客户端 WebSocket
 
